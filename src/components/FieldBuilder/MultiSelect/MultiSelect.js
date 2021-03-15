@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { NotificationManager } from 'react-notifications';
 
 import {
@@ -10,9 +10,13 @@ import {
     SubmitValue,
 } from '../fieldComponents';
 
+const choiceLimit = 50
+
 export default function MultiSelect({ data, onSubmit }) {
     const [state, setState] = useState(data.fetch());
     const [isPending, setPending] = useState(false);
+    const [isValid, setValid] = useState(true);
+    const [sortBy, setOrder] = useState('Natural')
 
     const {
         choices,
@@ -22,45 +26,83 @@ export default function MultiSelect({ data, onSubmit }) {
         // displayAlpha, //????
     } = state;
 
-    const validate = () => {
-        let isValid = true;
-
+    const validate = useCallback(() => {
         const hasLabel = label ?? ''
         if (!hasLabel) {
             NotificationManager.warning('Label is required');
-            isValid = false;
+            setValid(false);
+
+            return false;
         }
-        
-    }
+
+        setValid(true);
+        return true;
+    }, [label]);
+
+    const sort = useCallback((arr) => {
+        let sorted = [...arr];
+        switch (sortBy) {
+            case 'Natural': {
+                sorted.sort((a, b) => a.localeCompare(b, navigator?.language, { numeric: true, sensitivity: 'base' }))
+                break;
+            }
+            case 'Text': {
+                sorted.sort();
+                break;
+            }
+            default:
+                break;
+        }
+        return sorted;
+    }, [sortBy])
+
+
 
     const handleChange = (target) => ({ target: { value } }) => {
-        console.log(value);
         let newValue;
         switch (target) {
             case 'choices':
                 if (value === '' || choices.indexOf(value) !== -1) {
-                    NotificationManager.warning(`Item already exists!`)
+                    NotificationManager.warning(`Item already exists!`);
                     return;
                 }
-                newValue = [...choices, value];
+                newValue = sort([...choices, value]);
                 break;
             case 'list': {
-                console.log(value);
-                const newState = { 
-                    ...state, 
-                    choices: value.newOptions,
+                const newState = {
+                    ...state,
+                    choices: sort(value.newOptions),
                 };
+
+                if (newState.choices.length > choiceLimit) {
+                    NotificationManager.warning(`${choiceLimit}!`);
+                    return;
+                }
 
                 if (defaultValue === value.deleted) {
                     newState['default'] = choices[0];
                 }
 
-                if (defaultValue === value.old) {
-                    newState['default'] = value.new;
+                const oldVal = value.old;
+                const newVal = value.new;
+
+                const valueEmpty = newVal === '';
+                if (valueEmpty) {
+                    NotificationManager.warning(`Value can't be empty`);
+                    return;
+                }
+
+                const valueExists = choices.indexOf(newVal) !== -1;
+                if (valueExists) {
+                    NotificationManager.warning('Value already exists');
+                    return;
+                }
+
+                if (defaultValue === oldVal) {
+                    newState['default'] = newVal;
                 }
 
                 setState(newState);
-
                 return;
             }
             default:
@@ -74,6 +116,12 @@ export default function MultiSelect({ data, onSubmit }) {
     }
 
     const handleSubmit = () => {
+        const valid = validate();
+
+        if (!valid) {
+            return;
+        }
+
         setPending(true);
         onSubmit(state).then(
             r => {
@@ -87,10 +135,27 @@ export default function MultiSelect({ data, onSubmit }) {
         );
     }
 
+    const handleSortChange = ({ target: { value } }) => {
+        setOrder(value);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        setState(s => ({
+            ...s,
+            choices: sort(s.choices),
+        }))
+    }, [sortBy, sort])
+
+    useEffect(() => {
+        validate()
+    }, [label, validate])
+
     return (
         <div className="multi-select">
             <Text
                 label="Label"
+                isValid={isValid}
                 value={label}
                 onChange={handleChange('label')}
             />
@@ -103,15 +168,18 @@ export default function MultiSelect({ data, onSubmit }) {
                 label="Choices"
                 options={choices}
                 onChange={handleChange('list')}
+                limit={choiceLimit}
             />
             <Select
                 label="Sort By"
-                options={['Text', 'Length']}
+                onChange={handleSortChange}
+                value={sortBy}
+                options={['Text', 'Natural']}
             />
             <Select
                 label="Default"
                 options={choices}
-                defaultValue={defaultValue}
+                value={defaultValue}
                 onChange={handleChange('default')}
             />
             <Toggle
@@ -125,10 +193,10 @@ export default function MultiSelect({ data, onSubmit }) {
                     onClick={handleSubmit}
                     isPending={isPending}
                 />
-                <Button
+                {/* <Button
                     text="Cancel"
                     isPending={true}
-                />
+                /> */}
             </div>
         </div>
     )

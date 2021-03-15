@@ -3,9 +3,16 @@
     .select {
         &-footer {
             display: flex;
+            justify-content: flex-end;
             button {
                 display: inline-block;
                 margin: 1em;
+                &:last-of-type {
+                    margin-right: 0;
+                }
+                &:first-of-type {
+                    margin-left: 0;
+                }
             }
         }
     }

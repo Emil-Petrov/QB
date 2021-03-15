@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 
 import SubmitValue from './submitValue';
 
-const List = ({ label, options, onChange }) => {
+const List = ({ label, options, onChange, limit }) => {
     const [selected, setSelected] = useState({});
-    
+
     const triggerAction = (target, index) => () => {
         switch (target) {
             case 'edit':
@@ -34,12 +34,12 @@ const List = ({ label, options, onChange }) => {
 
     const handleChange = ({ target: { value } }) => {
         const newOptions = [...options];
-
-        const old = newOptions.splice(selected, 1, value);
+        console.log(value);
+        const old = newOptions.splice(selected, 1, value.trim())[0];
 
         onChange({
             target: {
-                value: { 
+                value: {
                     newOptions,
                     old,
                     new: value,
@@ -52,16 +52,17 @@ const List = ({ label, options, onChange }) => {
     return (
         <div className="field-list">
             {label && <span className="label">{label}</span>}
+            {limit && <span className="label limit">{`${options.length}/${limit}`}</span>}
             <ul>
                 {options.map((option, index) => {
                     return (
                         <li className="field-list-item" key={option}>
                             {
                                 index === selected
-                                    ? <SubmitValue focus buttonText='Save' value={option} onSubmit={handleChange} />
+                                    ? <SubmitValue focused buttonText='Save' value={option} onSubmit={handleChange} />
                                     : (
                                         <>
-                                            {option}
+                                            <div className="content">{option}</div>
                                             <div className="actions">
                                                 <button className="action edit" onClick={triggerAction('edit', index)}>Edit</button>
                                                 <button className="action delete" onClick={triggerAction('delete', index)}>Delete</button>

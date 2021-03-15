@@ -8,4 +8,8 @@ const root = document.getElementById('root');
 
 ReactDOM
   .unstable_createRoot(root)
-  .render(<App />);
+  .render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );

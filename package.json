@@ -6,6 +6,7 @@
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.1",
+    "classnames": "^2.2.6",
     "lodash": "^4.17.21",
     "node-sass": "^5.0.0",
     "react": "0.0.0-experimental-10cc40018",
@@ -13,8 +14,6 @@
     "react-notifications": "^1.7.2",
     "react-scripts": "4.0.3",
     "react-select": "^4.2.1",
-    "react-tooltip": "^4.2.15",
-    "react-uuid": "^1.0.2",
     "web-vitals": "^1.1.0"
   },
   "scripts": {
