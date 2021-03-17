@@ -13,6 +13,10 @@
                 font-size: 2em;
                 display: inline;
             }
+            button {
+                padding: 0;
+                margin: 0;
+            }
         }
         &-footer {
             display: flex;

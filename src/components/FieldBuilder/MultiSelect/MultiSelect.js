@@ -185,6 +185,10 @@ export default function MultiSelect({ data, onSubmit, id }) {
         <div className="multi-select">
             <div className="select-header">
                 <div className="heading">Multi Select</div>
+                <Button
+                    text="Clear"
+                    onClick={clearForm}
+                />
             </div>
             <Text
                 label="Label"
@@ -221,10 +225,6 @@ export default function MultiSelect({ data, onSubmit, id }) {
                 onChange={handleChange('required')}
             />
             <div className="select-footer">
-                <Button
-                    text="Clear"
-                    onClick={clearForm}
-                />
                 <Button
                     text="Submit"
                     onClick={handleSubmit}
