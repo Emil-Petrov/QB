@@ -23,6 +23,7 @@ const defaulState = {
 }
 
 export default function MultiSelect({ data, onSubmit, id }) {
+
     const [state, setState] = useState(() => {
         const fetchedState = data.fetch();
         const storedState = preserve.get(`multi-select-field-${id}`);
@@ -32,6 +33,7 @@ export default function MultiSelect({ data, onSubmit, id }) {
 
         return fetchedState || defaulState;
     });
+    
     const [isPending, setPending] = useState(false);
     const [isValid, setValid] = useState(true);
     const [sortBy, setOrder] = useState(sortOptions[1]);
@@ -96,6 +98,7 @@ export default function MultiSelect({ data, onSubmit, id }) {
                 }
                 newValue = sort([...choices, value.trim()]);
                 break;
+                
             case 'list': {
                 const newState = {
                     ...state,
@@ -148,7 +151,7 @@ export default function MultiSelect({ data, onSubmit, id }) {
         setPending(true);
         onSubmit(state).then(
             r => {
-                console.log(r);
+                // console.log(r);
                 setPending(false);
             },
             e => {

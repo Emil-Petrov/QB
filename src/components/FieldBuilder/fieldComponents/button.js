@@ -1,6 +1,7 @@
 import React from 'react';
 import Loader from '../../Loader';
 import './styles.scss';
+
 const button = ({ text, onClick, isPending, ...rest }) => (
     <button
         type="button"

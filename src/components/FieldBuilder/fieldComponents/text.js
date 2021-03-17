@@ -6,14 +6,14 @@ const text = ({ label, value, onChange, isValid, autoFocus, ...rest }) => (
         <label>
             {label && <span className="label">{label}</span>}
             <input
-                className={cn(rest.className, {
-                    'invalid': isValid === false,
-                })}
                 placeholder={label}
                 value={value}
                 onChange={onChange}
                 autoFocus={autoFocus}
                 {...rest}
+                className={cn(rest.className, {
+                    'invalid': isValid === false,
+                })}
             />
         </label>
     </div>

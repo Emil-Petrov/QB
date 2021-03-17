@@ -66,7 +66,7 @@ function saveField(field) {
     }).then(r => r.json());
 }
 
-const api =  {
+const api = {
     getField: id => wrapPromise(getField(id)),
     saveField,
 }
