@@ -13,7 +13,7 @@ const {
 const wrapper = ({ id }) => (
     <Suspense fallback={<Loader />}>
         <div className="field-builder-container">
-            <MultiSelect data={getField(id)} onSubmit={saveField}/>
+            <MultiSelect data={getField(id)} id={id} onSubmit={saveField}/>
         </div>
     </Suspense>
 );

@@ -1,3 +1,5 @@
+import { logger } from './middleware';
+
 function wrapPromise(promise) {
     let status = "pending";
     let result;
@@ -44,15 +46,23 @@ function getField(id) {
                 "displayAlpha": true,
                 "default": "North America",
                 "id": id,
+                "version": 1,
             });
         }, 500);
     });
 }
 
 function saveField(field) {
+    logger('Save data')({
+        payload: field
+    });
+
     return fetch('http://www.mocky.io/v2/566061f21200008e3aabd919', {
         method: 'POST',
-        body: JSON.stringify(field),
+        body: JSON.stringify({
+            ...field,
+            version: field.version + 1,
+        }),
     }).then(r => r.json());
 }
 
