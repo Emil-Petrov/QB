@@ -1,6 +1,19 @@
 .multi-select {
     position: relative;
     .select {
+        &-header {
+            position: relative;
+            border-bottom: 1px solid #fefefe;
+            margin-bottom: 1em;
+            padding-bottom: 1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            .heading {
+                font-size: 2em;
+                display: inline;
+            }
+        }
         &-footer {
             display: flex;
             justify-content: flex-end;
@@ -21,5 +34,5 @@
 .field-builder-container {
     outline: 1px solid #d8d8d8c9;
     padding: 1em;
-    background: #8e8e8e14;
+    background: #fefefe;
 }
