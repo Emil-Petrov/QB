@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { NotificationManager } from 'react-notifications';
 
+import preserve from '../../../utils/preserveData';
+
 import {
     Text,
     List,
@@ -10,13 +12,29 @@ import {
     SubmitValue,
 } from '../fieldComponents';
 
-const choiceLimit = 50
+const choiceLimit = 50;
+const sortOptions = ['Text', 'Natural'];
 
-export default function MultiSelect({ data, onSubmit }) {
-    const [state, setState] = useState(data.fetch());
+const defaulState = {
+    "label": "",
+    "required": false,
+    "choices": [],
+    "default": "",
+}
+
+export default function MultiSelect({ data, onSubmit, id }) {
+    const [state, setState] = useState(() => {
+        const fetchedState = data.fetch();
+        const storedState = preserve.get(`multi-select-field-${id}`);
+        if (storedState?.version >= fetchedState?.version) {
+            return storedState;
+        }
+
+        return fetchedState || defaulState;
+    });
     const [isPending, setPending] = useState(false);
     const [isValid, setValid] = useState(true);
-    const [sortBy, setOrder] = useState('Natural')
+    const [sortBy, setOrder] = useState(sortOptions[1]);
 
     const {
         choices,
@@ -27,7 +45,7 @@ export default function MultiSelect({ data, onSubmit }) {
     } = state;
 
     const validate = useCallback(() => {
-        const hasLabel = label ?? ''
+        const hasLabel = label?.trim();
         if (!hasLabel) {
             NotificationManager.warning('Label is required');
             setValid(false);
@@ -62,22 +80,27 @@ export default function MultiSelect({ data, onSubmit }) {
         let newValue;
         switch (target) {
             case 'choices':
-                if (value === '' || choices.indexOf(value) !== -1) {
+                if (value.trim() === '') {
+                    NotificationManager.warning(`Please enter a value!`);
+                    return;
+                }
+
+                if (choices.length >= choiceLimit) {
+                    NotificationManager.warning(`List is limited to ${choiceLimit} items!`);
+                    return;
+                }
+
+                if (choices.indexOf(value) !== -1) {
                     NotificationManager.warning(`Item already exists!`);
                     return;
                 }
-                newValue = sort([...choices, value]);
+                newValue = sort([...choices, value.trim()]);
                 break;
             case 'list': {
                 const newState = {
                     ...state,
                     choices: sort(value.newOptions),
                 };
-
-                if (newState.choices.length > choiceLimit) {
-                    NotificationManager.warning(`${choiceLimit}!`);
-                    return;
-                }
 
                 if (defaultValue === value.deleted) {
                     newState['default'] = choices[0];
@@ -139,7 +162,10 @@ export default function MultiSelect({ data, onSubmit }) {
         setOrder(value);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const clearForm = () => {
+        setState({...defaulState});
+    }
+
     useEffect(() => {
         setState(s => ({
             ...s,
@@ -150,6 +176,10 @@ export default function MultiSelect({ data, onSubmit }) {
     useEffect(() => {
         validate()
     }, [label, validate])
+
+    useEffect(() => {
+        preserve.save(`multi-select-field-${state.id}`)(state);
+    }, [state]);
 
     return (
         <div className="multi-select">
@@ -171,16 +201,16 @@ export default function MultiSelect({ data, onSubmit }) {
                 limit={choiceLimit}
             />
             <Select
-                label="Sort By"
-                onChange={handleSortChange}
-                value={sortBy}
-                options={['Text', 'Natural']}
-            />
-            <Select
                 label="Default"
                 options={choices}
                 value={defaultValue}
                 onChange={handleChange('default')}
+            />
+            <Select
+                label="Sort By"
+                onChange={handleSortChange}
+                value={sortBy}
+                options={sortOptions}
             />
             <Toggle
                 label="Required"
@@ -189,14 +219,14 @@ export default function MultiSelect({ data, onSubmit }) {
             />
             <div className="select-footer">
                 <Button
+                    text="Clear"
+                    onClick={clearForm}
+                />
+                <Button
                     text="Submit"
                     onClick={handleSubmit}
                     isPending={isPending}
                 />
-                {/* <Button
-                    text="Cancel"
-                    isPending={true}
-                /> */}
             </div>
         </div>
     )
