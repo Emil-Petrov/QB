@@ -163,7 +163,7 @@ export default function MultiSelect({ data, onSubmit, id }) {
     }
 
     const clearForm = () => {
-        setState({...defaulState});
+        setState({ ...defaulState });
     }
 
     useEffect(() => {
@@ -183,6 +183,9 @@ export default function MultiSelect({ data, onSubmit, id }) {
 
     return (
         <div className="multi-select">
+            <div className="select-header">
+                <div className="heading">Multi Select</div>
+            </div>
             <Text
                 label="Label"
                 isValid={isValid}
